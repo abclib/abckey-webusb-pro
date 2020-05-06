@@ -17,6 +17,9 @@ jobs:
           BRANCH: gh-pages
           FOLDER: dist
           BUILD_SCRIPT: npm install && npm run build
+      - run: cd dist
+      - run: cp index.html 404.html
+      - run: echo "pro.abckey.com" > CNAME
       - name: deploy to target directory
         uses: crazy-max/ghaction-github-pages@v1
         with:
