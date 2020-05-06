@@ -35,7 +35,7 @@ const BUILD = (webpackConfig) => {
 }
 
 module.exports = {
-  publicPath: IS_DEV ? '/' : '/abckey-pro',
+  publicPath: IS_DEV ? '/' : '/',
   outputDir: 'dist',
   assetsDir: 'static',
   productionSourceMap: IS_DEV,
