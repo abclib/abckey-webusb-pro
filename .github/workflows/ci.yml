@@ -16,10 +16,7 @@ jobs:
           ACCESS_TOKEN: ${{ secrets.MY_DEPLOY_KEY }}
           BRANCH: gh-pages
           FOLDER: dist
-          BUILD_SCRIPT: npm install && npm run build
-        run: |
-          cp index.html 404.html
-          echo "pro.abckey.com" > CNAME
+          BUILD_SCRIPT: npm install && npm run build && cd dist && cp index.html 404.html && echo "pro.abckey.com" >CNAME
       - name: deploy to target directory
         uses: crazy-max/ghaction-github-pages@v1
         with:
