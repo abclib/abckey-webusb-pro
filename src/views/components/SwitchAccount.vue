@@ -12,7 +12,7 @@
             <v-col cols="12">
               <v-checkbox v-model="item.selected" @click="selectedAddress(index)" color="primary" hide-details>
                 <template v-slot:label>
-                  <div :class="item.selected ? 'subtitle-1 primary--text' : 'subtitle-2 black--text'">{{ item.address }}</div>
+                  <div class="subtitle-2 same-width" :class="item.selected ? 'primary--text' : 'black--text'">{{ item.address }}</div>
                 </template>
               </v-checkbox>
             </v-col>
@@ -107,7 +107,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.same-width {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace !important;
+}
 .bg-switch {
-  background-image: linear-gradient(-180deg, rgba(44, 115, 210, 1), rgba(44, 115, 210, 0.6));
+  background-image: linear-gradient(-180deg, rgba(44, 115, 210, 1), rgba(44, 115, 210, 0.8));
 }
 </style>

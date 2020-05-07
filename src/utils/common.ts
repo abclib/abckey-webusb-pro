@@ -49,10 +49,8 @@ export function copyText(test) {
 
 export function getMousePos(event) {
   var e = event || window.event
-  var scrollX = document.documentElement.scrollLeft || document.body.scrollLeft
-  var scrollY = document.documentElement.scrollTop || document.body.scrollTop
-  var x = e.pageX || e.clientX + scrollX
-  var y = e.pageY || e.clientY + scrollY
+  var x = e.clientX
+  var y = e.clientY
   return { x: x, y: y }
 }
 export function HtmlEncode(text) {
