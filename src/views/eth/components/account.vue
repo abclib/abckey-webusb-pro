@@ -1,5 +1,6 @@
 <template>
   <v-container class="pa-0 text-left" fluid>
+    <switch-account v-if="d_switchAccountShow" :show="d_switchAccountShow" :currentAddress="c_address" @on-close="d_switchAccountShow = false" @on-change="switchAccount" />
     <v-card class="px-3 mb-3">
       <v-row justify="center" align="center">
         <v-col cols="2" class="text-center">
@@ -129,7 +130,7 @@
       </v-expansion-panel>
       <v-expansion-panel v-for="(item, i) in d_txs" :key="i" :disabled="item.status === -1">
         <v-overlay :value="item.status === -1" absolute>
-          <span class="caption">{{ $t('Unconfirmations') }}</span>
+          <span class="caption">{{ $t('Unconfirm transaction') }}</span>
         </v-overlay>
         <v-expansion-panel-header>
           <v-row align="center" no-gutters>
@@ -318,8 +319,12 @@
 import Axios from 'axios'
 import ETH from '@/mixins/eth'
 import UnitHelper from '@abckey/unit-helper'
+import SwitchAccount from '@/views/components/SwitchAccount'
 
 export default {
+  components: {
+    SwitchAccount
+  },
   props: {
     coin: {
       default: 'btc',
@@ -336,6 +341,7 @@ export default {
   },
   data: () => ({
     UnitHelper,
+    d_switchAccountShow: false,
     d_balance: 0,
     d_rate: 0,
     d_totalReceived: 0,
@@ -378,8 +384,15 @@ export default {
     }
   },
   methods: {
+    switchAccount(account) {
+      this.$store.__s('eth.account', account)
+      this.d_txs = []
+      this.upBalance()
+      this.$message.success(this.$t('Switch account success.'))
+      this.d_switchAccountShow = false
+    },
     changeAccount() {
-      this.$message.info(this.$t('Tips:Currently only supports a single account'))
+      this.d_switchAccountShow = true
     },
     async getEthResult() {
       this.d_address = await this.ethGetAddress()
@@ -471,7 +484,9 @@ export default {
         'Address Count': '地址计数',
         'Transaction Count': '交易计数',
         'Unconfirmed Balance': '未确认余额',
-        'Unconfirmed Txs': '未确认交易计数'
+        'Unconfirmed Txs': '未确认交易计数',
+        'Switch account success.': '切换账户成功',
+        'Unconfirm transation': '该笔交易暂未确认'
       }
     }
   }

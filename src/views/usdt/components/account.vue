@@ -1,5 +1,6 @@
 <template>
   <v-container class="pa-0 text-left" fluid>
+    <switch-account v-if="d_switchAccountShow" :show="d_switchAccountShow" :currentAddress="c_address" @on-close="d_switchAccountShow = false" @on-change="switchAccount" />
     <v-card class="px-3 mb-3">
       <v-row justify="center" align="center">
         <v-col cols="2">
@@ -27,7 +28,7 @@
             <v-icon :class="['ml-1', d_loading.upBalance && 'rotate']" size="16" color="primary">mdi-cached</v-icon>
           </v-btn>
           <div :class="['mt-1', d_loading.upBalance && 'blur']">
-            <span class="title font-weight-bold">{{ UnitHelper(this.$store.__s('eth.balance')).div(1000000).toString(10) }}</span>
+            <span class="title font-weight-bold">{{ UnitHelper(d_balance).div(1000000).toString(10) }}</span>
             <span class="text-uppercase caption">&nbsp;{{ coin }}</span>
           </div>
         </v-col>
@@ -37,7 +38,7 @@
             <v-icon :class="['ml-1', (d_loading.upBalance || d_loading.upRate) && 'rotate']" size="16" color="primary">mdi-cached</v-icon>
           </v-btn>
           <div :class="['mt-1', (d_loading.upBalance || d_loading.upRate) && 'blur']">
-            <span class="title font-weight-bold">{{ UnitHelper(this.$store.__s('eth.balance')).div(1000000).times(this.d_rate).toFixed(8).toString(10) }}</span>
+            <span class="title font-weight-bold">{{ UnitHelper(d_balance).div(1000000).times(this.d_rate).toFixed(8).toString(10) }}</span>
             <span class="text-uppercase caption">&nbsp;{{ cash }}</span>
           </div>
         </v-col>
@@ -66,7 +67,7 @@
       </v-expansion-panel>
       <v-expansion-panel v-for="(item, i) in d_txs" :key="i" :disabled="item.status === -1">
         <v-overlay :value="item.status === -1" absolute>
-          <span class="caption">{{ $t('Unconfirmations') }}</span>
+          <span class="caption">{{ $t('Unconfirm transation') }}</span>
         </v-overlay>
         <v-expansion-panel-header>
           <v-row align="center" no-gutters>
@@ -94,13 +95,13 @@
                 <template v-slot:activator="{ on }">
                   <v-chip v-on="on" small label outlined>
                     <v-icon left color="grey" size="22">mdi-wallet-outline</v-icon>
-                    <span>{{ UnitHelper($store.__s('eth.balance')).div(1000000).toString(10) }}</span>
+                    <span>{{ UnitHelper(d_balance).div(1000000).toString(10) }}</span>
                     <span class="text-uppercase caption ml-1">{{ coin }}</span>
                   </v-chip>
                 </template>
                 <span>
                   <span>{{ $t('Balance') }}</span>
-                  <b>&nbsp;{{ UnitHelper($store.__s('eth.balance')).times(d_rate).div(1000000).toString(10) }}</b>
+                  <b>&nbsp;{{ UnitHelper(d_balance).times(d_rate).div(1000000).toString(10) }}</b>
                   <span class="text-uppercase caption">&nbsp;{{ cash }}</span>
                 </span>
               </v-tooltip>
@@ -225,8 +226,11 @@ import Axios from 'axios'
 import ETH from '@/mixins/eth'
 import UnitHelper from '@abckey/unit-helper'
 import { utc2Beijing } from '../../../utils/common'
-
+import SwitchAccount from '@/views/components/SwitchAccount'
 export default {
+  components: {
+    SwitchAccount
+  },
   props: {
     coin: {
       default: 'btc',
@@ -242,6 +246,7 @@ export default {
     }
   },
   data: () => ({
+    d_switchAccountShow: false,
     utc2Beijing,
     UnitHelper,
     d_balance: 0,
@@ -294,14 +299,25 @@ export default {
   },
   methods: {
     changeAccount() {
-      this.$message.info(this.$t('Tips:Currently only supports a single account'))
+      this.d_switchAccountShow = true
+    },
+    switchAccount(account) {
+      this.$store.__s('eth.account', account)
+      this.d_txs = []
+      this.upBalance()
+      this.$message.success(this.$t('Switch account success.'))
+      this.d_switchAccountShow = false
     },
     async getEthResult() {
       this.d_address = await this.ethGetAddress()
       this.$store.__s('eth.address', this.d_address)
       const { data } = await Axios.get(`https://api.abckey.com/eth/address/${this.d_address}?details=txs&contract=${this.c_coinInfo.contract}&t=${new Date().getTime()}`)
-      this.summary = data.tokens[0]
-      this.transactions = data.transactions
+      if (data?.tokens?.length) {
+        this.summary = data.tokens[0]
+      } else {
+        this.summary = { balance: 0, contract: '0xdAC17F958D2ee523a2206206994597C13D831ec7', decimals: 6, name: 'Tether USD', symbol: 'USDT', transfers: 0, type: 'ERC20' }
+      }
+      this.transactions = data.transactions ? data.transactions : []
       this.$store.__s('eth.balance', this.summary.balance ? this.summary.balance : 0)
       this.$store.__s('balance', UnitHelper(this.summary.balance).div(1000000).toString())
       return data
@@ -314,8 +330,11 @@ export default {
     async upBalance() {
       this.d_loading.upBalance = true
       const result = await this.getEthResult()
-      if (!result?.tokens?.length) return
-      this.d_balance = this.balance
+      this.d_balance = this.summary.balance
+      if (!result?.tokens?.length) {
+        this.d_loading.upBalance = false
+        return
+      }
       this.d_loading.upBalance = false
       this._fixTxs(this.transactions)
     },
@@ -377,7 +396,8 @@ export default {
         'Address Count': '地址计数',
         'Transaction Count': '交易计数',
         'Unconfirmed Balance': '未确认余额',
-        'Unconfirmed Txs': '未确认交易计数'
+        'Unconfirmed Txs': '未确认交易计数',
+        'Unconfirm transation': '该笔交易暂未确认'
       }
     }
   }
