@@ -20,7 +20,7 @@
     <v-row class="ma-0">
       <div class="side-navbar">
         <v-list dense class="nav-area">
-          <v-list-item-group class="pa-0 ma-0" style="border-top:1px solid  rgba(44, 115, 210, 0.2)">
+          <v-list-item-group class="pa-0 ma-0" style="border-top: 1px solid rgba(44, 115, 210, 0.2);">
             <v-list-item v-for="(item, index) in d_routerList" :key="index" link class="pa-0" :class="[item.id === d_selectedId ? 'active-menu' : 'text--white']">
               <v-list-item-content @click="menuClick(item.id)">
                 <div class="pt-1 pb-1" :class="[item.id === d_selectedId ? 'active-menu' : 'inactive-menu text--black', c_fold ? 'flex-colomn' : 'flexrow  pl-4']">
@@ -28,7 +28,7 @@
                   <i class="icon pr-2" v-html="item.icon"></i>
                   <div class="body-2 text--white" v-if="!c_fold">{{ $t(item.name) }}</div>
                   <div class="icon text-right flex-grow-1 pr-4">
-                    <i class="icon text-right" style="font-size:26px;" :class="item.id == c_currentRootLevel ? '' : 'white--text'" v-if="item.children" v-html="item.id === c_currentRootLevel ? '&#xe625;' : '&#xe664;'"></i>
+                    <i class="icon text-right" style="font-size: 26px;" :class="item.id == c_currentRootLevel ? '' : 'white--text'" v-if="item.children" v-html="item.id === c_currentRootLevel ? '&#xe625;' : '&#xe664;'"></i>
                   </div>
                 </div>
                 <transition-group name="fade">
@@ -45,7 +45,7 @@
           </v-list-item-group>
         </v-list>
       </div>
-      <v-col cols="12" class="pa-0" style="heigth:60px;width:100%;">
+      <v-col cols="12" class="pa-0" style="heigth: 60px; width: 100%;">
         <div class="pa-0 ma-0">
           <v-btn v-show="c_fold" tile color="primary" rounded icon>
             <v-icon>mdi-translate</v-icon>
@@ -78,17 +78,17 @@ export default {
         {
           name: 'Receive',
           icon: '&#xe9fd;',
-          url: '/receive'
+          url: '/receive/index'
         },
         {
           name: 'Send',
           icon: '&#xea06;',
-          url: '/send'
+          url: '/send/index'
         },
         {
           name: 'Setting',
           icon: '&#xe9f2;',
-          url: '/setting'
+          url: '/setting/index'
         }
       ]
     }
@@ -106,14 +106,14 @@ export default {
     c_currentRootLevel() {
       return this.d_selectedId.split('-')[0]
     },
-    c_balance: vm => vm.$store.__s('balance'),
+    c_balance: (vm) => vm.$store.__s('balance'),
     c_coinPicture() {
       const pictureName = this.c_coinType.toUpperCase()
       return require(`../../assets/cointype/${pictureName}.png`)
     },
-    isDeviceConnect: vm => vm.usb.connect,
-    c_coinType: vm => vm.$store.__s('coinType'),
-    c_fold: vm => vm.$store.__s('navbarFold'),
+    isDeviceConnect: (vm) => vm.usb.connect,
+    c_coinType: (vm) => vm.$store.__s('coinType'),
+    c_fold: (vm) => vm.$store.__s('navbarFold'),
     c_logo() {
       return require(`@/assets/${this.brand.logo}`)
     }

@@ -1,11 +1,21 @@
 const __DIR__ = 'setting'
 
 const Root = {
-  path: '/',
+  path: '/setting',
   meta: {
     title: 'setting'
   },
-  component: () => import('../views/' + __DIR__ + '/index.vue')
+  component: () => import('../views/' + __DIR__ + '/index.vue'),
+  children: [
+    {
+      path: 'index',
+      meta: {
+        title: 'setting'
+      },
+      component: () => import('../views/' + __DIR__ + '/content.vue')
+    }
+  ]
+
 }
 
 export default {

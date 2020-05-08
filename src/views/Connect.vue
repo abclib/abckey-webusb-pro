@@ -1,5 +1,5 @@
 <template>
-  <v-container fill-height class="d-flex flex-column justify-center text-center align-center" style="width:100%;">
+  <v-container fill-height class="d-flex flex-column justify-center text-center align-center" style="width: 100%;">
     <v-alert prominent width="80%" type="error" v-show="!d_usb">
       <v-row align="center">
         <v-col class="grow">{{ $t('Your browser is not support webusb.') }}</v-col>
@@ -10,7 +10,7 @@
         <img :src="c_logo" height="70" />
         <h1 class="title mt-4">{{ $t('Please Connect ABCKEY...') }}</h1>
       </div>
-      <v-btn dark rounded color="primary" :disabled="d_usb ? false : true" @click="connect" class="mt-4" style="min-width:200px">
+      <v-btn dark rounded color="primary" :disabled="d_usb ? false : true" @click="connect" class="mt-4" style="min-width: 200px;">
         <v-icon size="20" color="#fff">mdi-usb</v-icon>
         <span class="subtitle-2 pl-2">{{ $t('Check For Device') }}</span>
       </v-btn>
@@ -33,8 +33,8 @@ export default {
     }
   },
   computed: {
-    c_connect: vm => vm.$store.__s('usb.connect'),
-    c_brand: vm => vm.$store.__s('brand'),
+    c_connect: (vm) => vm.$store.__s('usb.connect'),
+    c_brand: (vm) => vm.$store.__s('brand'),
     c_logo() {
       return require(`@/assets/${this.c_brand.logo}`)
     }

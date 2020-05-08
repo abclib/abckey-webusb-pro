@@ -67,7 +67,7 @@
       </v-expansion-panel>
       <v-expansion-panel v-for="(item, i) in d_txs" :key="i" :disabled="item.status === -1">
         <v-overlay :value="item.status === -1" absolute>
-          <span class="caption">{{ $t('Unconfirm transation') }}</span>
+          <span class="caption">{{ $t('Unconfirm transaction') }}</span>
         </v-overlay>
         <v-expansion-panel-header>
           <v-row align="center" no-gutters>
@@ -397,7 +397,7 @@ export default {
         'Transaction Count': '交易计数',
         'Unconfirmed Balance': '未确认余额',
         'Unconfirmed Txs': '未确认交易计数',
-        'Unconfirm transation': '该笔交易暂未确认'
+        'Unconfirm transaction': '该笔交易暂未确认'
       }
     }
   }

@@ -23,7 +23,17 @@ const Send = {
   meta: {
     title: 'Send'
   },
-  component: () => import('../views/' + __DIR__ + '/send/index.vue')
+  redirect: '/' + __DIR__ + '/send/index',
+  component: () => import('../views/' + __DIR__ + '/send/index.vue'),
+  children: [
+    {
+      path: 'index',
+      meta: {
+        title: 'Send'
+      },
+      component: () => import('../views/' + __DIR__ + '/send/content.vue')
+    }
+  ]
 }
 
 const Receive = {
@@ -31,12 +41,23 @@ const Receive = {
   meta: {
     title: 'Receive'
   },
-  component: () => import('../views/' + __DIR__ + '/receive/index.vue')
+  redirect: '/' + __DIR__ + '/receive/index',
+  component: () => import('../views/' + __DIR__ + '/receive/index.vue'),
+  children: [
+    {
+      path: 'index',
+      meta: {
+        title: 'Send'
+      },
+      component: () => import('../views/' + __DIR__ + '/receive/content.vue')
+    }
+  ]
+
 }
 
 export default {
   path: '/' + __DIR__,
   redirect: '/' + __DIR__ + '/wallet',
-  component: () => import(/* webpackChunkName: "Bitcoin" */ '../views/ltc/index.vue'),
+  component: () => import(/* webpackChunkName: "Bitcoin" */ '../views/' + __DIR__ + '/index.vue'),
   children: [Account, Receive, Send]
 }
