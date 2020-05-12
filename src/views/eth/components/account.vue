@@ -455,7 +455,6 @@ export default {
       this.d_txs = txs.filter(function (item) {
         return item.value !== '0' && item.valueChanged !== '0'
       })
-      console.log(this.d_txs)
     },
     _isOwnAddr(address) {
       return address.toLowerCase() === this.c_address.toLowerCase()
