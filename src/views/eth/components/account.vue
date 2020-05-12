@@ -75,7 +75,7 @@
                     <v-tooltip :disabled="!d_unconfirmedBalance" top>
                       <template v-slot:activator="{ on }">
                         <span v-on="on" :class="[d_loading.upBalance && 'blur']">
-                          <b>{{ btc2str(d_unconfirmedBalance) }}</b>
+                          <b>{{ UnitHelper(d_unconfirmedBalance, 'wei_eth').toString(10) }}</b>
                           <span class="text-uppercase caption grey--text">&nbsp;{{ coin }}</span>
                         </span>
                       </template>
@@ -143,13 +143,13 @@
                 <template v-slot:activator="{ on }">
                   <v-chip v-on="on" :color="item.vin[0].addresses.includes(c_address) ? 'red' : 'green'" small label outlined>
                     <v-icon left size="18">{{ !item.vin[0].addresses.includes(c_address) ? 'mdi-plus' : 'mdi-minus' }}</v-icon>
-                    <span>{{ btc2str(Math.abs(item.valueChanged)) }}</span>
+                    <span>{{ btc2str(Math.abs(item.value)) }}</span>
                     <span class="text-uppercase caption ml-1">{{ coin }}</span>
                   </v-chip>
                 </template>
                 <span>
                   <span>{{ item.valueChanged > 0 ? $t('Received') : $t('Spent') }}</span>
-                  <b>&nbsp;{{ btc2cash(Math.abs(item.valueChanged), d_rate) }}</b>
+                  <b>&nbsp;{{ btc2cash(Math.abs(item.value), d_rate) }}</b>
                   <span class="text-uppercase caption">&nbsp;{{ cash }}</span>
                 </span>
               </v-tooltip>
@@ -159,13 +159,13 @@
                 <template v-slot:activator="{ on }">
                   <v-chip v-on="on" small label outlined>
                     <v-icon left color="grey" size="22">mdi-wallet-outline</v-icon>
-                    <span>{{ btc2str(item.value) }}</span>
+                    <span>{{ c_balance }}</span>
                     <span class="text-uppercase caption ml-1">{{ coin }}</span>
                   </v-chip>
                 </template>
                 <span>
                   <span>{{ $t('Balance') }}</span>
-                  <b>&nbsp;{{ btc2cash(item.value, d_rate) }}</b>
+                  <b>&nbsp;{{ c_balance }}</b>
                   <span class="text-uppercase caption">&nbsp;{{ cash }}</span>
                 </span>
               </v-tooltip>
@@ -373,7 +373,8 @@ export default {
   computed: {
     c_coinInfo: (vm) => vm.$store.__s('coinInfo'),
     c_protocol: (vm) => vm.$store.__s('coinProtocol'),
-    c_address: (vm) => vm.$store.__s('eth.address')
+    c_address: (vm) => vm.$store.__s('eth.address'),
+    c_balance: (vm) => vm.$store.__s('balance')
   },
   async created() {
     const path = this.$route.path
@@ -451,7 +452,10 @@ export default {
           txs[i].vout[y].own = this._isOwnAddr(txs[i].vout[y].addresses[0])
         }
       }
-      this.d_txs = txs
+      this.d_txs = txs.filter(function (item) {
+        return item.value !== '0' && item.valueChanged !== '0'
+      })
+      console.log(this.d_txs)
     },
     _isOwnAddr(address) {
       return address.toLowerCase() === this.c_address.toLowerCase()
