@@ -136,7 +136,7 @@
           <v-row align="center" no-gutters>
             <v-col cols="4">
               <span class="caption grey--text">{{ unix2utc(item.blockTime) }}</span>
-              <span class="ml-2 caption grey--text">nonce:{{ item.nonce }}</span>
+              <span v-if="item.vin[0].addresses[0].toLowerCase() === c_address.toLowerCase()" class="ml-2 caption grey--text">nonce:{{ item.nonce }}</span>
             </v-col>
             <v-col cols="4">
               <v-tooltip :disabled="!item.valueChanged" top>
@@ -453,7 +453,7 @@ export default {
         }
       }
       this.d_txs = txs.filter(function (item) {
-        return item.value !== '0' && item.valueChanged !== '0'
+        return item.value !== '0'
       })
     },
     _isOwnAddr(address) {

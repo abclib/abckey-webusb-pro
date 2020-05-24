@@ -73,6 +73,7 @@
           <v-row align="center" no-gutters>
             <v-col cols="4">
               <span class="caption grey--text">{{ new Date(item.blockTime * 1000).toLocaleString() }}</span>
+              <span v-if="item.from.toLowerCase() === c_address.toLowerCase()" class="ml-2 caption grey--text">nonce:{{ item.nonce }}</span>
             </v-col>
             <v-col cols="4">
               <v-tooltip :disabled="!item.value" top>
