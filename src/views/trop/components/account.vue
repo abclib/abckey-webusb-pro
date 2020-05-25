@@ -393,7 +393,7 @@ export default {
       this.d_switchAccountShow = false
     },
     changeAccount() {
-      this.d_switchAccountShow = true
+      this.$message.info(this.$t('Testnet does not support switching other accounts'))
     },
     async getEthResult() {
       this.d_address = await this.ethGetAddress()
@@ -489,7 +489,8 @@ export default {
         'Unconfirmed Balance': '未确认余额',
         'Unconfirmed Txs': '未确认交易计数',
         'Switch account success.': '切换账户成功',
-        'Unconfirm transation': '该笔交易暂未确认'
+        'Unconfirm transation': '该笔交易暂未确认',
+        'Testnet does not support switching other accounts': '测试网不支持切换其他账号'
       }
     }
   }
