@@ -8,9 +8,6 @@
           <v-radio-group v-model="d_language" column>
             <v-radio label="English" value="en"></v-radio>
             <v-radio label="中文 (简体)" value="zhCN"></v-radio>
-            <v-radio label="中文 (繁体)" value="zhTW"></v-radio>
-            <v-radio label="한국어" value="ko"></v-radio>
-            <v-radio label="日本語" value="ja"></v-radio>
           </v-radio-group>
         </v-card-text>
         <v-divider></v-divider>
@@ -33,7 +30,7 @@ export default {
     d_language: ''
   }),
   computed: {
-    c_language: vm => vm.$store.__s('app.language'),
+    c_language: (vm) => vm.$store.__s('app.language'),
     c_show: {
       get() {
         return this.$store.__s('dialog.language')

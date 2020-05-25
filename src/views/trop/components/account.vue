@@ -198,7 +198,7 @@
                 </tr>
                 <tr>
                   <td class="caption">{{ $t('Gas Price') }}</td>
-                  <td>{{ UnitHelper(item.gasPrice, 'wei_eth').toString(10) }} ETH</td>
+                  <td>{{ UnitHelper(item.gasPrice, 'wei_eth').toString(10) }} {{ coin.toUpperCase() }}</td>
                 </tr>
                 <tr>
                   <td class="caption">{{ $t('Gas Limit') }}</td>
@@ -421,7 +421,7 @@ export default {
     },
     async upRate() {
       this.d_loading.upRate = true
-      const { data } = await Axios.get(`https://api.abckey.com/market/${this.coin.toLowerCase()}/${this.cash.toLowerCase()}&t=${new Date().getTime()}`)
+      const { data } = await Axios.get(`https://api.abckey.com/market/eth/${this.cash.toLowerCase()}&t=${new Date().getTime()}`)
       if (data.error) return
       this.d_rate = data
       this.d_loading.upRate = false

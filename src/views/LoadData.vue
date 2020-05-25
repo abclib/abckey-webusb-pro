@@ -27,6 +27,7 @@ export default {
       switch (this.coinInfo.symbol) {
         case 'usdt':
         case 'eth':
+        case 'trop':
           await this.ethGetPublicKey()
           break
         default:

@@ -381,7 +381,17 @@ export default {
   computed: {
     c_coinInfo: (vm) => vm.$store.__s('coinInfo'),
     c_protocol: (vm) => vm.$store.__s('coinProtocol'),
-    c_addressType: (vm) => vm.$store.__s('addressType')
+    c_addressType: (vm) => vm.$store.__s('addressType'),
+    c_switchCashName() {
+      switch (this.c_coinInfo.name.toLowerCase()) {
+        case 'tbtc':
+          return 'btc'
+        case 'trop':
+          return 'eth'
+        default:
+          return 'btc'
+      }
+    }
   },
   async created() {
     const path = this.$route.path
@@ -448,7 +458,7 @@ export default {
     },
     async upRate() {
       this.d_loading.upRate = true
-      const { data } = await Axios.get(`https://api.abckey.com/market/${this.coin.toLowerCase()}/${this.cash.toLowerCase()}&t=${new Date().getTime()}`)
+      const { data } = await Axios.get(`https://api.abckey.com/market/${this.c_switchCashName}/${this.cash.toLowerCase()}&t=${new Date().getTime()}`)
       if (data.error) return
       this.d_rate = data
       this.d_loading.upRate = false

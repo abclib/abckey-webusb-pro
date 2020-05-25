@@ -1,22 +1,21 @@
 <template>
   <v-container class="pa-0 text-left" fluid>
-    <switch-account v-if="d_switchAccountShow" :show="d_switchAccountShow" :currentAddress="c_address" @on-close="d_switchAccountShow = false" @on-change="switchAccount" />
     <v-card class="px-3 mb-3">
       <v-row justify="center" align="center">
         <v-col cols="2" class="text-center">
-          <span class="subtitle-2">{{ $t('Current Account') }}</span>
+          <span class="subtitle-2">{{ $t('Public Key') }}</span>
         </v-col>
         <v-col cols="1">
           <v-divider vertical style="height: 30px;" />
         </v-col>
-        <v-col cols="6">
-          <span class="subtitle-2">{{ c_address }}</span>
+        <v-col cols="6" @click="showXpub">
+          <v-sheet class="subtitle-2 text--disabled xpub">{{ d_showXpub ? xpub : hideXpub(xpub) }}</v-sheet>
         </v-col>
         <v-col cols="1">
           <v-divider vertical style="height: 30px;" />
         </v-col>
         <v-col cols="2" class="">
-          <v-btn class="subtitle-2" color="primary" text @click="changeAccount">{{ $t('Change') }}</v-btn>
+          <v-btn class="subtitle-2" color="primary" text @click="changeOldAccount">{{ c_addressType === 'new' ? $t('Old Account') : $t('New Account') }}</v-btn>
         </v-col>
       </v-row>
     </v-card>
@@ -28,8 +27,8 @@
             <v-icon :class="['ml-1', d_loading.upBalance && 'rotate']" size="16" color="primary">mdi-cached</v-icon>
           </v-btn>
           <div :class="['mt-1', d_loading.upBalance && 'blur']">
-            <span class="title font-weight-bold">{{ UnitHelper(d_balance, 'wei_eth').toFixed(8).toString(10) }}</span>
-            <span class="text-uppercase caption">&nbsp;{{ coin }}</span>
+            <span class="title font-weight-bold">{{ btc2str(d_balance) }}</span>
+            <span class="text-uppercase caption">&nbsp;{{ coinInfo.symbol }}</span>
           </div>
         </v-col>
         <v-col class="text-center">
@@ -38,7 +37,7 @@
             <v-icon :class="['ml-1', (d_loading.upBalance || d_loading.upRate) && 'rotate']" size="16" color="primary">mdi-cached</v-icon>
           </v-btn>
           <div :class="['mt-1', (d_loading.upBalance || d_loading.upRate) && 'blur']">
-            <span class="title font-weight-bold">{{ UnitHelper(d_balance, 'wei_eth').times(d_rate).toFixed(8).toString(10) }}</span>
+            <span class="title font-weight-bold">{{ btc2cash(d_balance, d_rate) }}</span>
             <span class="text-uppercase caption">&nbsp;{{ cash }}</span>
           </div>
         </v-col>
@@ -49,7 +48,7 @@
           </v-btn>
           <div :class="['mt-1', d_loading.upRate && 'blur']">
             <span class="title font-weight-bold">{{ cash2str(d_rate) }}</span>
-            <span class="text-uppercase caption">&nbsp;{{ cash }}/{{ coin }}</span>
+            <span class="text-uppercase caption">&nbsp;{{ cash }}/{{ coinInfo.symbol }}</span>
           </div>
         </v-col>
       </v-row>
@@ -61,6 +60,23 @@
           <v-simple-table dense>
             <template v-slot:default>
               <tbody>
+                <tr>
+                  <td class="caption">{{ $t('Total Received') }}</td>
+                  <td class="text-right">
+                    <v-tooltip :disabled="!d_totalReceived" top>
+                      <template v-slot:activator="{ on }">
+                        <span v-on="on" :class="[d_loading.upBalance && 'blur']">
+                          <b>{{ btc2str(d_totalReceived) }}</b>
+                          <span class="text-uppercase caption grey--text">&nbsp;{{ coinInfo.symbol }}</span>
+                        </span>
+                      </template>
+                      <span>
+                        <b>{{ btc2cash(d_totalReceived, d_rate) }}</b>
+                        <span class="text-uppercase caption">&nbsp;{{ cash }}</span>
+                      </span>
+                    </v-tooltip>
+                  </td>
+                </tr>
                 <tr>
                   <td class="caption">{{ $t('Address Count') }}</td>
                   <td class="text-right">
@@ -75,8 +91,8 @@
                     <v-tooltip :disabled="!d_unconfirmedBalance" top>
                       <template v-slot:activator="{ on }">
                         <span v-on="on" :class="[d_loading.upBalance && 'blur']">
-                          <b>{{ UnitHelper(d_unconfirmedBalance, 'wei_eth').toString(10) }}</b>
-                          <span class="text-uppercase caption grey--text">&nbsp;{{ coin }}</span>
+                          <b>{{ btc2str(d_unconfirmedBalance) }}</b>
+                          <span class="text-uppercase caption grey--text">&nbsp;{{ coinInfo.symbol }}</span>
                         </span>
                       </template>
                       <span>
@@ -94,6 +110,23 @@
           <v-simple-table dense>
             <template v-slot:default>
               <tbody>
+                <tr>
+                  <td class="caption">{{ $t('Total Spent') }}</td>
+                  <td class="text-right">
+                    <v-tooltip :disabled="!d_totalSent" top>
+                      <template v-slot:activator="{ on }">
+                        <span v-on="on" :class="[d_loading.upBalance && 'blur']">
+                          <b>{{ btc2str(d_totalSent) }}</b>
+                          <span class="text-uppercase caption grey--text">&nbsp;{{ coinInfo.symbol }}</span>
+                        </span>
+                      </template>
+                      <span>
+                        <b>{{ btc2cash(d_totalSent, d_rate) }}</b>
+                        <span class="text-uppercase caption">&nbsp;{{ cash }}</span>
+                      </span>
+                    </v-tooltip>
+                  </td>
+                </tr>
                 <tr>
                   <td class="caption">{{ $t('Transaction Count') }}</td>
                   <td class="text-right">
@@ -128,28 +161,27 @@
           </span>
         </v-expansion-panel-header>
       </v-expansion-panel>
-      <v-expansion-panel v-for="(item, i) in d_txs" :key="i" :disabled="item.status === -1">
-        <v-overlay :value="item.status === -1" absolute>
-          <span class="caption">{{ $t('Unconfirm transaction') }}</span>
-        </v-overlay>
-        <v-expansion-panel-header>
+      <v-expansion-panel v-for="(item, i) in d_txs" :key="i">
+        <v-expansion-panel-header :disabled="item.blockHeight === -1">
+          <v-overlay v-if="item.blockHeight === -1" absolute>
+            <span class="subtitle-2">{{ $t('Unconfirm transaction') }}</span>
+          </v-overlay>
           <v-row align="center" no-gutters>
             <v-col cols="4">
               <span class="caption grey--text">{{ unix2utc(item.blockTime) }}</span>
-              <span v-if="item.vin[0].addresses[0].toLowerCase() === c_address.toLowerCase()" class="ml-2 caption grey--text">nonce:{{ item.nonce }}</span>
             </v-col>
             <v-col cols="4">
               <v-tooltip :disabled="!item.valueChanged" top>
                 <template v-slot:activator="{ on }">
-                  <v-chip v-on="on" :color="item.vin[0].addresses.includes(c_address) ? 'red' : 'green'" small label outlined>
-                    <v-icon left size="18">{{ !item.vin[0].addresses.includes(c_address) ? 'mdi-plus' : 'mdi-minus' }}</v-icon>
-                    <span>{{ btc2str(Math.abs(item.value)) }}</span>
-                    <span class="text-uppercase caption ml-1">{{ coin }}</span>
+                  <v-chip v-on="on" :color="item.own ? 'red' : 'green'" small label outlined>
+                    <v-icon left size="18">{{ !item.own > 0 ? 'mdi-plus' : 'mdi-minus' }}</v-icon>
+                    <span>{{ btc2str(Math.abs(item.vout[0].value)) }}</span>
+                    <span class="text-uppercase caption ml-1">{{ c_coinInfo.symbol }}</span>
                   </v-chip>
                 </template>
                 <span>
-                  <span>{{ item.valueChanged > 0 ? $t('Received') : $t('Spent') }}</span>
-                  <b>&nbsp;{{ btc2cash(Math.abs(item.value), d_rate) }}</b>
+                  <span>{{ item.own ? $t('Received') : $t('Spent') }}</span>
+                  <b>&nbsp;{{ btc2cash(Math.abs(item.vout[0].value), d_rate) }}</b>
                   <span class="text-uppercase caption">&nbsp;{{ cash }}</span>
                 </span>
               </v-tooltip>
@@ -159,13 +191,13 @@
                 <template v-slot:activator="{ on }">
                   <v-chip v-on="on" small label outlined>
                     <v-icon left color="grey" size="22">mdi-wallet-outline</v-icon>
-                    <span>{{ c_balance }}</span>
-                    <span class="text-uppercase caption ml-1">{{ coin }}</span>
+                    <span>{{ btc2str(d_balance) }}</span>
+                    <span class="text-uppercase caption ml-1">{{ c_coinInfo.symbol }}</span>
                   </v-chip>
                 </template>
                 <span>
                   <span>{{ $t('Balance') }}</span>
-                  <b>&nbsp;{{ UnitHelper(c_balance).times(d_rate).toString() }}</b>
+                  <b>&nbsp;{{ btc2cash(item.value, d_rate) }}</b>
                   <span class="text-uppercase caption">&nbsp;{{ cash }}</span>
                 </span>
               </v-tooltip>
@@ -197,18 +229,6 @@
                   <td>{{ item.blockHeight }}</td>
                 </tr>
                 <tr>
-                  <td class="caption">{{ $t('Gas Price') }}</td>
-                  <td>{{ UnitHelper(item.gasPrice, 'wei_eth').toString(10) }} ETH</td>
-                </tr>
-                <tr>
-                  <td class="caption">{{ $t('Gas Limit') }}</td>
-                  <td>{{ item.gasLimit }}</td>
-                </tr>
-                <tr>
-                  <td class="caption">{{ $t('Gas Used') }}</td>
-                  <td>{{ item.gasUsed }}</td>
-                </tr>
-                <tr>
                   <td class="caption">{{ $t('Confirmations') }}</td>
                   <td>{{ item.confirmations }}</td>
                 </tr>
@@ -219,7 +239,7 @@
                       <template v-slot:activator="{ on }">
                         <span v-on="on">
                           <span>{{ btc2str(item.fees) }}</span>
-                          <span class="text-uppercase caption">&nbsp;{{ coin }}</span>
+                          <span class="text-uppercase caption">&nbsp;{{ c_coinInfo.symbol }}</span>
                         </span>
                       </template>
                       <span>
@@ -244,15 +264,11 @@
                   <tbody>
                     <tr v-for="(item, i) in item.vin" :key="i">
                       <td class="caption number">
-                        <span v-if="item.value">
-                          <v-icon size="16" :color="item.addresses[0].toLowerCase() === c_address.toLowerCase() ? 'bluet' : 'grey'">mdi-key</v-icon>
-                          <span :class="item.addresses[0].toLowerCase() === c_address.toLowerCase() ? 'blue--text' : 'grey--text'">&nbsp;{{ item.addresses[0] }}</span>
-                        </span>
-                        <v-tooltip top v-else>
+                        <v-tooltip top>
                           <template v-slot:activator="{ on }">
                             <span :class="[item.own && 'blue--text']" v-on="on">
-                              <v-icon size="16" :color="item.addresses[0].toLowerCase() === c_address.toLowerCase() ? 'bluet' : 'grey'">mdi-key</v-icon>
-                              <span :class="item.addresses[0].toLowerCase() === c_address.toLowerCase() ? 'blue--text' : 'grey--text'">&nbsp;{{ item.addresses[0] }}</span>
+                              <v-icon size="16" color="blue" v-if="item.own">mdi-key</v-icon>
+                              <span>&nbsp;{{ item.addresses[0] }}</span>
                             </span>
                           </template>
                           <span>
@@ -283,11 +299,11 @@
                         <v-tooltip top>
                           <template v-slot:activator="{ on }">
                             <span :class="[item.own && 'blue--text']" v-on="on">
-                              <v-icon size="16" :color="item.addresses[0].toLowerCase() === c_address.toLowerCase() ? 'blue' : 'grey'">mdi-key</v-icon>
-                              <span :class="item.addresses[0].toLowerCase() === c_address.toLowerCase() ? 'blue--text' : 'grey--text'">&nbsp;{{ item.addresses[0] }}</span>
+                              <v-icon size="16" color="blue" v-if="item.own">mdi-key</v-icon>
+                              <span>&nbsp;{{ item.addresses[0] }}</span>
                             </span>
                           </template>
-                          <span v-if="item.own">
+                          <span>
                             <b>{{ item.value }}</b>
                             <span class="text-uppercase caption">&nbsp;{{ coin }}</span>
                             <span>&nbsp;≈&nbsp;</span>
@@ -309,7 +325,7 @@
     <p class="mt-3 mb-7 grey--text text-center">
       <span class="caption">
         {{ $t('Only the latest 1000 data is displayed.') }}
-        <a :href="`https://blockchair.com/${c_coinInfo.name.toLowerCase()}/address/${c_address}`" target="_blank">{{ $t('See more') }}</a>
+        <a :href="`https://blockchair.com/${c_coinInfo.name.toLowerCase()}/xpub/${xpub}`" target="_blank">{{ $t('See more') }}</a>
       </span>
     </p>
   </v-container>
@@ -317,14 +333,11 @@
 
 <script>
 import Axios from 'axios'
-import ETH from '@/mixins/eth'
+import usb from '@/mixins/usb'
 import UnitHelper from '@abckey/unit-helper'
-import SwitchAccount from '@/views/components/SwitchAccount'
 
 export default {
-  components: {
-    SwitchAccount
-  },
+  mixins: [usb],
   props: {
     coin: {
       default: 'btc',
@@ -340,8 +353,7 @@ export default {
     }
   },
   data: () => ({
-    UnitHelper,
-    d_switchAccountShow: false,
+    d_showXpub: false,
     d_balance: 0,
     d_rate: 0,
     d_totalReceived: 0,
@@ -369,12 +381,20 @@ export default {
       this.upAll()
     }
   },
-  mixins: [ETH],
   computed: {
     c_coinInfo: (vm) => vm.$store.__s('coinInfo'),
     c_protocol: (vm) => vm.$store.__s('coinProtocol'),
-    c_address: (vm) => vm.$store.__s('eth.address'),
-    c_balance: (vm) => vm.$store.__s('balance')
+    c_addressType: (vm) => vm.$store.__s('addressType'),
+    c_switchCashName() {
+      switch (this.c_coinInfo.name.toLowerCase()) {
+        case 'tbtc':
+          return 'btc'
+        case 'trop':
+          return 'eth'
+        default:
+          return 'btc'
+      }
+    }
   },
   async created() {
     const path = this.$route.path
@@ -385,20 +405,33 @@ export default {
     }
   },
   methods: {
-    switchAccount(account) {
-      this.$store.__s('eth.account', account)
-      this.d_txs = []
-      this.upBalance()
-      this.$message.success(this.$t('Switch account success.'))
-      this.d_switchAccountShow = false
+    async showXpub() {
+      if (this.d_showXpub === true) {
+        return false
+      }
+      await this.btcGetPublickKey(true)
+      this.d_showXpub = true
+      this.$message.info({ message: this.$t('The public key is displayed.') })
     },
-    changeAccount() {
-      this.d_switchAccountShow = true
+    changeOldAccount() {
+      if (this.c_addressType === 'new') {
+        this.$store.__s('addressType', 'old')
+      } else {
+        this.$store.__s('addressType', 'new')
+      }
+      this.$store.__s('usb.xpub', '')
+    },
+    hideXpub(xpub) {
+      const len = xpub.length
+      return xpub.slice(0, 4) + new Array(40).fill('#').join('') + xpub.slice(len - 8 + 4)
     },
     async getEthResult() {
-      this.d_address = await this.ethGetAddress()
-      this.$store.__s('eth.address', this.d_address)
-      const r = await Axios.get(`https://api.abckey.com/${this.c_coinInfo.symbol}/address/${this.d_address}?page=1&pageSize=1000&details=txs&t=${new Date().getTime()}`)
+      const result = await this.$usb.cmd('EthereumGetAddress', {
+        address_n: [(this.c_protocol | 0x80000000) >>> 0, (this.c_coinInfo.slip44 | 0x80000000) >>> 0, (0 | 0x80000000) >>> 0, 0, 0],
+        show_display: false
+      })
+      this.d_address = result.data.address
+      const r = await Axios.get(`https://api.abckey.com/${this.c_coinInfo.symbol}/address/${this.d_address}?page=1&pageSize=1000&details=txs`)
       return r
     },
     upAll() {
@@ -407,65 +440,75 @@ export default {
     },
     async upBalance() {
       this.d_loading.upBalance = true
-      const result = await this.getEthResult()
+      let result = null
+      if (this.coin === 'eth') {
+        result = await this.getEthResult()
+      } else {
+        result = await Axios.get(`https://api.abckey.com/${this.c_coinInfo.symbol}/xpub/${this.xpub}?details=txs&tokens=used&t=${new Date().getTime()}`)
+      }
       if (result.error) return
       const data = result.data
-      this.d_balance = data.balance
-      this.$store.__s('balance', UnitHelper(this.d_balance, 'wei_eth').toFixed(6).toString())
-      this.$store.__s('eth.balance', data.balance)
-      this.d_unconfirmedBalance = data.unconfirmedBalance
+      this.d_balance = this.sat2btc(data.balance)
+      this.$store.__s('balance', `${this.d_balance}`)
+      this.d_totalReceived = this.sat2btc(data.totalReceived)
+      this.d_totalSent = this.sat2btc(data.totalSent)
+      this.d_unconfirmedBalance = this.sat2btc(data.unconfirmedBalance)
       this.d_unconfirmedTxs = data.unconfirmedTxs
       this.d_transactionCount = data.txs
+      this.d_addressCount = data.usedTokens || '0'
       this.d_loading.upBalance = false
-      this._fixTxs(data.transactions)
+      this._fixTxs(data.transactions, data.tokens)
     },
     async upRate() {
       this.d_loading.upRate = true
-      const { data } = await Axios.get(`https://api.abckey.com/market/${this.coin.toLowerCase()}/${this.cash.toLowerCase()}&t=${new Date().getTime()}`)
+      const { data } = await Axios.get(`https://api.abckey.com/market/${this.c_switchCashName}/${this.cash.toLowerCase()}&t=${new Date().getTime()}`)
       if (data.error) return
       this.d_rate = data
       this.d_loading.upRate = false
     },
-    sat2btc: (sat) => UnitHelper(sat).div(1000000000000000000).toNumber(),
+    sat2btc: (sat) => UnitHelper(sat).div(100000000).toNumber(),
     btc2str: (btc) => UnitHelper(btc).dp(8, 1).toFormat(),
     cash2str: (num) => UnitHelper(num).dp(8, 1).toFormat(),
     btc2cash: (sat, rate) => UnitHelper(sat).times(rate).dp(2, 1).toFormat(),
     unix2utc: (time) => new Date(time * 1000).toLocaleString(),
-    _fixTxs(txs) {
-      if (!txs) return
-      for (let i = 0; i < txs?.length; i++) {
+    _fixTxs(txs, tokens) {
+      if (!txs.length) return
+      for (let i = 0; i < txs.length; i++) {
         const oldValue = i + 1 === txs.length ? 0 : txs[i + 1].value
-        txs[i].nonce = txs[i].ethereumSpecific.nonce
-        txs[i].gasLimit = txs[i].ethereumSpecific.gasLimit
-        txs[i].gasPrice = txs[i].ethereumSpecific.gasPrice
-        txs[i].gasUsed = txs[i].ethereumSpecific.gasUsed
-        txs[i].status = txs[i].ethereumSpecific.status
-        txs[i].valueChanged = UnitHelper(txs[i].value - oldValue, 'wei_eth').toString(10)
-        txs[i].value = UnitHelper(txs[i].value, 'wei_eth').toString(10)
-        txs[i].fees = UnitHelper(txs[i].fees, 'wei_eth').toString(10)
-        for (let x = 0; x < txs[i]?.vin?.length; x++) {
-          txs[i].vin[x].value = UnitHelper(txs[i].vin[x].value, 'wei_eth').toString(10)
-          txs[i].vin[x].own = this._isOwnAddr(txs[i].vin[x].addresses[0])
+        txs[i].valueChanged = this.sat2btc(txs[i].value - oldValue)
+        txs[i].own = this._isOwnAddr(txs[i].vin[0].addresses[0], tokens)
+        txs[i].value = this.sat2btc(txs[i].value)
+        txs[i].fees = this.sat2btc(txs[i].fees)
+        for (let x = 0; x < txs[i].vin.length; x++) {
+          txs[i].vin[x].value = this.sat2btc(txs[i].vin[x].value)
+          txs[i].vin[x].own = this._isOwnAddr(txs[i].vin[x].addresses[0], tokens)
         }
-        for (let y = 0; y < txs[i]?.vout?.length; y++) {
-          txs[i].vout[y].value = UnitHelper(txs[i].vout[y].value, 'wei_eth').toString(10)
-          txs[i].vout[y].own = this._isOwnAddr(txs[i].vout[y].addresses[0])
+        for (let y = 0; y < txs[i].vout.length; y++) {
+          txs[i].vout[y].value = this.sat2btc(txs[i].vout[y].value)
+          txs[i].vout[y].own = this._isOwnAddr(txs[i].vout[y].addresses[0], tokens)
         }
       }
-      this.d_txs = txs.filter(function (item) {
-        return item.value !== '0'
-      })
+      this.d_txs = txs
     },
-    _isOwnAddr(address) {
-      return address.toLowerCase() === this.c_address.toLowerCase()
+    _isOwnAddr(addr, tokens) {
+      let result = false
+      for (let i = 0; i < tokens?.length; i++) {
+        if (addr === tokens[i].name) {
+          result = true
+          break
+        }
+      }
+      return result
     }
   },
   i18n: {
     messages: {
       zhCN: {
-        'Tips:Currently only supports a single account': '目前仅支持单一账户,多用户尚未开放',
-        Change: '切换账号',
-        'Current Account': '当前账号',
+        'The public key is displayed.': '公钥已显示',
+        'Your public key is : ': '你的公钥是 ：',
+        'New Account': '切换新账户',
+        'Old Account': '切换旧账户',
+        'Public Key': '公钥',
         Balance: '余额',
         Convert: '折合',
         Rate: '汇率',
@@ -487,9 +530,7 @@ export default {
         'Address Count': '地址计数',
         'Transaction Count': '交易计数',
         'Unconfirmed Balance': '未确认余额',
-        'Unconfirmed Txs': '未确认交易计数',
-        'Switch account success.': '切换账户成功',
-        'Unconfirm transation': '该笔交易暂未确认'
+        'Unconfirmed Txs': '未确认交易计数'
       }
     }
   }
@@ -503,5 +544,11 @@ export default {
 
 .blur {
   filter: blur(2px);
+}
+.xpub {
+  cursor: pointer;
+}
+.xpub-info {
+  white-space: pre-wrap;
 }
 </style>

@@ -3,7 +3,7 @@
     <v-card>
       <v-card-title class="subtitle-1"> <v-icon left>mdi-alert-circle-outline</v-icon>{{ $t('Failure') }}</v-card-title>
       <v-divider></v-divider>
-      <div class="d-flex justify-center align-center subtitle-2" style="min-height:50px">{{ $t(this.d_msg) }}</div>
+      <div class="d-flex justify-center align-center subtitle-2" style="min-height: 50px;">{{ $t(this.d_msg) }}</div>
       <v-divider></v-divider>
       <v-card-actions>
         <v-spacer></v-spacer>
@@ -23,14 +23,14 @@ export default {
     }
   },
   computed: {
-    c_msg: vm => vm.$store.__s('usb.msg'),
-    c_err: vm => vm.$store.__s('usb.err')
+    c_msg: (vm) => vm.$store.__s('usb.msg'),
+    c_err: (vm) => vm.$store.__s('usb.err')
   },
   watch: {
     c_msg(msg) {
       this.$store.__s('pageLoading', false)
       if (msg?.type === 'Failure') {
-        this.d_whiteList.map(item => {
+        this.d_whiteList.map((item) => {
           if (msg.data.code.indexOf(item) === -1) {
             this.d_show = true
             this.d_msg = msg.data.message
@@ -59,6 +59,8 @@ export default {
         'PIN mismatch': 'PIN码不匹配',
         'Access denied.': '拒绝访问。',
         'Unpaired device.': '未配对设备。',
+        'Not enough funds': '余额不足',
+        'Value overflow': '转账金额大于余额',
         'No device selected.': '未选择设备。',
         'The transfer was cancelled.': '传输已取消。',
         "Cannot read property 'requestDevice' of undefined": '您的浏览器未支持 WebUSB。',

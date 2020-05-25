@@ -7,7 +7,7 @@
     </v-alert>
     <div class="content">
       <div class="d-flex flex-column justify-center align-center">
-        <img :src="c_logo" height="70" />
+        <img :src="require(`@/assets/${this.c_brand.logo}`)" height="70" />
         <h1 class="title mt-4">{{ $t('Please Connect ABCKEY...') }}</h1>
       </div>
       <v-btn dark rounded color="primary" :disabled="d_usb ? false : true" @click="connect" class="mt-4" style="min-width: 200px;">
@@ -34,10 +34,7 @@ export default {
   },
   computed: {
     c_connect: (vm) => vm.$store.__s('usb.connect'),
-    c_brand: (vm) => vm.$store.__s('brand'),
-    c_logo() {
-      return require(`@/assets/${this.c_brand.logo}`)
-    }
+    c_brand: (vm) => vm.$store.__s('brand')
   },
   mounted() {
     this.d_usb = window.navigator.usb
