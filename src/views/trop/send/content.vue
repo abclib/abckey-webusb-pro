@@ -342,7 +342,6 @@ export default {
         chain_id: 1,
         value: UnitHelper(this.d_txOut[0].amount, 'eth_wei').toString(10)
       }
-      console.log(txParams)
       const result = await this.$usb.signETH(txParams)
       if (result?.data?.raw) {
         const serializedTx = result.data.raw
