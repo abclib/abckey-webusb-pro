@@ -9,8 +9,8 @@ export default {
   },
   computed: {
     ...mapState(['coinInfo', 'brand']),
-    c_addressType: vm => vm.$store.__s('addressType'),
-    c_coinProtocol: vm => vm.$store.__s('coinProtocol'),
+    c_addressType: (vm) => vm.$store.__s('addressType'),
+    c_coinProtocol: (vm) => vm.$store.__s('coinProtocol'),
     c_addressN() {
       const address_n = []
       const path = this.c_path.match(/\/[0-9]+('|H)?/g)
@@ -25,7 +25,7 @@ export default {
       try {
         return `m/${this.c_purpose}'/${this.coinInfo.slip44}'/0'`
       } catch (error) {
-        this.$router.push({ path: process.env.NODE === 'production' ? this.brand.buildPath : '/' })
+        // this.$router.push({ path: process.env.NODE === 'production' ? this.brand.buildPath : '/' })
       }
     },
     c_purpose() {

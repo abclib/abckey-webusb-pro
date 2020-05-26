@@ -28,9 +28,6 @@ webusb.onAdd(e => {
 /**
  * @method onConnect - device has reconnected
  */
-webusb.onConnect(e => {
-  Store.__s('usb.connect', e.data.connect)
-})
 
 /**
  * @method onErr - device has something wrong
@@ -52,8 +49,10 @@ webusb.onMsg(e => {
     Store.__s('usb.passphraseProtection', e.data.passphrase_protection)
     Store.__s('usb.initialized', e.data.initialized)
     Store.__s('usb.needsBackup', e.data.needs_backup)
+    Store.__s('usb.bootloaderMode', e ? e.data.bootloader_mode : '')
+    Store.__s('usb.firmwarePresent', e ? e.data.firmware_present : '')
   }
-  if (e.type === 'Success' || e.data.message === 'Device successfully initialized') window.location.replace(process.env.NODE_ENV === 'production' ? Store.__s('brand.buildPath') : '/')
+  if ((e.type === 'Success' || e.data.message === 'Device successfully initialized') && Store.__s('usb.bootloaderMode') !== true) window.location.replace(process.env.NODE_ENV === 'production' ? Store.__s('brand.buildPath') : '/')
   if (e.type === 'PublicKey' || e.type === 'EthereumPublicKey') Store.__s('usb.xpub', e.data.xpub)
 })
 

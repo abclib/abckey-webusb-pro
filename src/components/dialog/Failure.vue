@@ -42,12 +42,15 @@ export default {
       if (!err) return
       this.d_show = true
       this.d_msg = err.message
+      if (err.message === 'Device disconnected') {
+        window.location.replace('/')
+      }
     }
   },
   methods: {
     close() {
       if (this.d_msg === 'PIN invalid') {
-        window.location.reload()
+        window.location.replace('/')
       }
       this.d_show = false
     }

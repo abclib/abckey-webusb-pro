@@ -1,21 +1,16 @@
 <template>
   <div id="app">
     <v-app>
-      <connect v-if="!c_usb.connect" />
+      <connect v-if="!c_usb.connect && !c_usb.bootloaderMode" />
+      <welcome v-else-if="c_usb.bootloaderMode && !c_usb.firmwarePresent" />
+      <bootloader v-else-if="c_usb.bootloaderMode" />
       <first-guide v-else-if="!c_usb.initialized" />
       <load-data v-else-if="!c_usb.xpub" />
-      <v-content v-else class="app-content" style="min-height:100vh;">
+      <v-content v-else class="app-content" style="min-height: 100vh;">
         <top-bar />
         <v-container fluid class="pa-0">
           <side-navbar />
-          <v-alert prominent type="error" v-if="c_needsBackup">
-            <v-row align="center">
-              <v-col class="grow">{{ $t('Your device is not backed up. To ensure the safety of your funds, please backup immediately!') }}</v-col>
-              <v-col class="shrink">
-                <v-btn rounded @click="m_backupDevice">👉{{ $t('Backup Now') }}</v-btn>
-              </v-col>
-            </v-row>
-          </v-alert>
+          <backup-alert />
           <loading v-show="c_pageLoading" />
           <router-view />
         </v-container>
@@ -41,6 +36,9 @@ import LoadData from '@/views/LoadData'
 import FirstGuide from '@/views/FirstGuide'
 import coinbook from '@/utils/coinbook'
 import UsbMixin from '@/mixins/usb'
+import BackupAlert from '@/views/components/BackupAlert'
+import Bootloader from '@/views/Bootloader'
+import Welcome from '@/views/Welcome'
 export default {
   name: 'App',
   mixins: [UsbMixin],
@@ -50,16 +48,19 @@ export default {
     TopBar,
     LoadData,
     Loading,
-    FirstGuide
+    FirstGuide,
+    BackupAlert,
+    Bootloader,
+    Welcome
   },
   computed: {
-    c_usb: vm => vm.$store.__s('usb'),
-    c_pageLoading: vm => vm.$store.__s('pageLoading'),
-    c_isConnect: vm => vm.$store.__s('usb.connect'),
-    c_msg: vm => vm.$store.__s('usb.msg'),
-    c_brand: vm => vm.$store.__s('brand'),
-    c_coinInfo: vm => vm.$store.__s('coinInfo'),
-    c_needsBackup: vm => vm.$store.__s('usb.needsBackup')
+    c_usb: (vm) => vm.$store.__s('usb'),
+    c_pageLoading: (vm) => vm.$store.__s('pageLoading'),
+    c_isConnect: (vm) => vm.$store.__s('usb.connect'),
+    c_msg: (vm) => vm.$store.__s('usb.msg'),
+    c_brand: (vm) => vm.$store.__s('brand'),
+    c_coinInfo: (vm) => vm.$store.__s('coinInfo'),
+    c_needsBackup: (vm) => vm.$store.__s('usb.needsBackup')
   },
   async created() {
     const coinType = this.$store.__s('coinType').toLowerCase()
@@ -74,6 +75,7 @@ export default {
         this.$message.success(this.$t('Device connected'))
       } else {
         this.$message.success(this.$t('Device disconnected'))
+        // window.location.replace('/')
       }
     },
     c_msg(msg) {

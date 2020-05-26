@@ -353,7 +353,7 @@ export default {
     unix2utc: (time) => new Date(time * 1000).toLocaleString(),
     _fixTxs(txs) {
       this.d_txs = []
-      if (!txs.length) return
+      if (!txs?.length) return
       for (let i = 0; i < txs?.length; i++) {
         const item = { ...txs[i].tokenTransfers[0], ...txs[i].ethereumSpecific, blockTime: txs[i].blockTime, txid: txs[i].txid, fees: txs[i].fees, blockHeight: txs[i].blockHeight }
         txs[i].value = UnitHelper(txs[i].value).div(1000000).toString(10)

@@ -16,6 +16,22 @@ const routes: Array<RouteConfig> = [
     name: '',
     component: import('@/views/Connect.vue')
   },
+  {
+    path: '/Welcome',
+    meta: {
+      icon: 'mdi-shield-alert',
+      title: 'Welcome'
+    },
+    component: () => import(/* webpackChunkName: "Welcome" */ '@/views/Welcome.vue')
+  },
+  {
+    path: '/Bootloader',
+    meta: {
+      icon: 'mdi-tools',
+      title: 'Bootloader'
+    },
+    component: () => import(/* webpackChunkName: "Bootloader" */ '@/views/Bootloader.vue')
+  },
   ...modules
 ]
 
