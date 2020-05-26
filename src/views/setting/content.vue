@@ -31,11 +31,10 @@
       <v-card-title
         ><div class="d-flex align-center">
           <v-icon color="#333" class="mr-2">mdi-update</v-icon>
-          <span>{{ $t('Device') }} </span>
+          <span>{{ $t('Version') }} </span>
         </div></v-card-title
       >
-      <v-card-text class="d-flex subtitle-2 justify-start align-center">
-        <v-btn rounded class="mr-5" color="primary" @click="navToBootloader">{{ $t('Bootloader') }}</v-btn>
+      <v-card-text class="d-flex subtitle-2">
         <div>{{ $t('Firmware Version') }}: {{ c_firmVersion }}</div>
         <div class="ml-10">{{ $t('Software Version') }}: {{ app.version }}</div>
       </v-card-text>
@@ -68,11 +67,6 @@ export default {
     c_passphraseProtection: (vm) => vm.$store.__s('usb.passphraseProtection')
   },
   methods: {
-    async navToBootloader() {
-      const msg = await this.$usb.cmd('Initialize')
-      if (msg.data.bootloader_mode) return this.$router.push({ path: '/Welcome' })
-      this.$message.info(this.$t('Please make sure the device is in bootloader mode!'))
-    },
     async wipeDevice() {
       const proto = {}
       await this.$usb.cmd('WipeDevice', proto)
@@ -112,8 +106,6 @@ export default {
         Safe: '安全',
         'Close Pin': '关闭PIN码',
         Version: '版本信息',
-        Device: '设备',
-        Bootloader: '固件管理',
         'Edit Device Label': '修改设备标签',
         'Modify PIN': '修改 PIN 码',
         'Verification Mnemonics': '验证助记词',
@@ -122,8 +114,7 @@ export default {
         'Software Version': '软件版本号',
         'Enable Passphrase': '开启密码短语',
         'Disabled Passphrase': '关闭密码短语',
-        'Switch Fiat Unit': '切换法币单位',
-        'Please make sure the device is in bootloader mode!': '请确保设备处于Bootloader模式!'
+        'Switch Fiat Unit': '切换法币单位'
       }
     }
   }

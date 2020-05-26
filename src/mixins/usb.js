@@ -25,7 +25,7 @@ export default {
       try {
         return `m/${this.c_purpose}'/${this.coinInfo.slip44}'/0'`
       } catch (error) {
-        // this.$router.push({ path: process.env.NODE === 'production' ? this.brand.buildPath : '/' })
+        this.$router.push({ path: process.env.NODE === 'production' ? this.brand.buildPath : '/' })
       }
     },
     c_purpose() {

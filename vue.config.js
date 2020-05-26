@@ -1,4 +1,5 @@
 const VuetifyLoaderPlugin = require('vuetify-loader/lib/plugin')
+const TerserPlugin = require('terser-webpack-plugin')
 const IS_DEV = process.env.NODE_ENV !== 'production'
 const SERVER = (webpackConfig) => {
   webpackConfig.plugin('html').tap(([options]) => [
@@ -51,6 +52,22 @@ module.exports = {
     proxy: null
   },
   configureWebpack: {
+    optimization: {
+      minimizer: [
+        new TerserPlugin({
+          terserOptions: {
+            ecma: undefined,
+            warnings: false,
+            parse: {},
+            compress: {
+              drop_console: true,
+              drop_debugger: true,
+              pure_funcs: ['console.log'] // 移除console
+            }
+          }
+        })
+      ]
+    },
     plugins: [new VuetifyLoaderPlugin()],
     externals: {
       'vue-router': 'VueRouter',

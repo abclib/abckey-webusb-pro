@@ -393,8 +393,8 @@ export default {
     btc2cash: (sat, rate) => UnitHelper(sat).times(rate).dp(2, 1).toFormat(),
     unix2utc: (time) => new Date(time * 1000).toLocaleString(),
     _fixTxs(txs, tokens) {
-      for (let i = 0; i < txs.length; i++) {
-        const oldValue = i + 1 === txs.length ? 0 : txs[i + 1].value
+      for (let i = 0; i < txs?.length; i++) {
+        const oldValue = i + 1 === txs?.length ? 0 : txs[i + 1].value
         txs[i].valueChanged = this.sat2btc(txs[i].value - oldValue)
         txs[i].value = this.sat2btc(txs[i].value)
         txs[i].fees = this.sat2btc(txs[i].fees)

@@ -473,7 +473,7 @@ export default {
     unix2utc: (time) => new Date(time * 1000).toLocaleString(),
     _fixTxs(txs, tokens) {
       if (!txs?.length) return
-      for (let i = 0; i < txs.length; i++) {
+      for (let i = 0; i < txs?.length; i++) {
         const oldValue = i + 1 === txs.length ? 0 : txs[i + 1].value
         txs[i].valueChanged = this.sat2btc(txs[i].value - oldValue)
         txs[i].own = this._isOwnAddr(txs[i].vin[0].addresses[0], tokens)
