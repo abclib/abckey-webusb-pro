@@ -20,6 +20,6 @@ const Root = {
 
 export default {
   path: '/' + __DIR__,
-  component: () => import(/* webpackChunkName: "Bitcoin" */ '../views/setting/index.vue'),
+  component: () => import(/* webpackChunkName: "setting" */ '../views/setting/index.vue'),
   children: [Root]
 }

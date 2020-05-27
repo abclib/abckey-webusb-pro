@@ -1,6 +1,6 @@
+# [1.0.0](https://github.com/abclib/abckey-webusb-pro/compare/v0.0.7...v1.0.0) (2020-05-27)
+
 ## [0.0.7](https://github.com/abclib/abckey-webusb-pro/compare/v0.0.6...v0.0.7) (2020-05-27)
-
-
 
 ## [0.0.6](https://github.com/abclib/abckey-webusb-pro/compare/v0.0.5...v0.0.6) (2020-05-27)
 

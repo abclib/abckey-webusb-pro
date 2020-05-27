@@ -58,6 +58,6 @@ const Receive = {
 export default {
   path: '/' + __DIR__,
   redirect: '/' + __DIR__ + '/wallet',
-  component: () => import(/* webpackChunkName: "Bitcoin" */ '../views/tbtc/index.vue'),
+  component: () => import(/* webpackChunkName: "tbtc" */ '../views/tbtc/index.vue'),
   children: [Account, Receive, Send]
 }
