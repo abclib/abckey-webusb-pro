@@ -33,13 +33,14 @@ export default {
   data() {
     return {
       apiUrl: 'https://www.blockchain.com',
-      testList: ['tbtc', 'trop']
+      testList: ['tbtc', 'trop', 'tusdt']
     }
   },
   methods: {
     openBlockchainBrowser() {
       const type = this.coinType === 'usdt' ? 'eth' : this.coinType
-      this.apiUrl = this.testList.includes(this.coinType) ? `https://${this.coinType}1.trezor.io` : `https://www.blockchain.com/${type}`
+      const urlPrefix = this.coinType === 'tusdt' ? 'ropsten' : this.coinType
+      this.apiUrl = this.testList.includes(this.coinType) ? `https://${urlPrefix}1.trezor.io` : `https://www.blockchain.com/${type}`
       window.open(`${this.apiUrl}/tx/${this.transactionHash}`, 'blank')
     },
     async copy() {

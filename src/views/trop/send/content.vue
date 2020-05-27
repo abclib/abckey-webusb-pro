@@ -325,6 +325,7 @@ export default {
         await this.getUtxoList()
         await this.signTx()
       } catch (e) {
+        console.log(e)
         this.$message.error(this.$t('Unknown Error!'))
       }
       this.$store.__s('pageLoading', false)
@@ -339,7 +340,7 @@ export default {
         gas_price: UnitHelper(1, 'gwei_wei').times(this.d_zoom).toString(10),
         gas_limit: this.d_gasLimit,
         to: this.d_txOut[0].address,
-        chain_id: 1,
+        chain_id: 3,
         value: UnitHelper(this.d_txOut[0].amount, 'eth_wei').toString(10)
       }
       const result = await this.$usb.signETH(txParams)

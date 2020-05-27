@@ -47,7 +47,7 @@ export default {
     }
   },
   computed: {
-    c_coinInfo: vm => vm.$store.__s('coinInfo')
+    c_coinInfo: (vm) => vm.$store.__s('coinInfo')
   },
   methods: {
     copyAndColse() {
@@ -62,8 +62,12 @@ export default {
     async autoBordercast() {
       let res = null
       try {
-        const newSymbol = this.c_coinInfo.symbol === 'usdt' ? 'eth' : this.c_coinInfo.symbol
+        let newSymbol = this.c_coinInfo.symbol === 'usdt' ? 'eth' : this.c_coinInfo.symbol
+        if (this.c_coinInfo.symbol === 'tusdt') {
+          newSymbol = 'trop'
+        }
         res = await Axios.get(`https://api.abckey.com/${newSymbol}/sendtx/${this.$props.signHash}`)
+
         if (res.data.result) {
           this._close('auto', res.data.result)
         } else {

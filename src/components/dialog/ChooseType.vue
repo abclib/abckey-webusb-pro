@@ -105,6 +105,10 @@ export default {
           briefName: 'USDT'
         },
         {
+          name: 'Tether USD Testnet',
+          briefName: 'TUSDT'
+        },
+        {
           name: 'Litecoin',
           briefName: 'LTC'
         },

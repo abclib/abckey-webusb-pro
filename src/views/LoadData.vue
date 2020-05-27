@@ -28,6 +28,7 @@ export default {
         case 'usdt':
         case 'eth':
         case 'trop':
+        case 'tusdt':
           await this.ethGetPublicKey()
           break
         default:
