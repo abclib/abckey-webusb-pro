@@ -11,11 +11,11 @@
         <div class="text-404__oops">{{ $t('OOPS!') }}</div>
         <div class="text-404__info">
           {{ $t('All rights reserved') }}
-          <a style="color: #20a0ff;" href="https://abckey.com" target="_blank">abckey.com</a>
+          <a style="color: #20a0ff;" :href="c_href" target="_blank">{{ c_brand.domain }}</a>
         </div>
         <div class="text-404__headline">{{ $t('404 Page Not Found') }}</div>
         <div class="text-404__info">{{ $t('Please check that the URL you entered is correct, or click the button below to return to the homepage.') }}</div>
-        <a href class="text-404__return-home">{{ $t('Back to home') }}</a>
+        <a @click="navBack" class="text-404__return-home">{{ $t('Back to home') }}</a>
       </div>
     </div>
   </div>
@@ -24,6 +24,17 @@
 <script>
 export default {
   name: 'error',
+  computed: {
+    c_brand: (vm) => vm.$store.__s('brand'),
+    c_href() {
+      return `https://${this.c_brand.domain}`
+    }
+  },
+  methods: {
+    navBack() {
+      this.$router.back()
+    }
+  },
   i18n: {
     messages: {
       zhCN: {
