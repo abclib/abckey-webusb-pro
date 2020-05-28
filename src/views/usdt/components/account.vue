@@ -65,7 +65,7 @@
           </span>
         </v-expansion-panel-header>
       </v-expansion-panel>
-      <v-expansion-panel v-for="(item, i) in d_txs" :key="i" :disabled="item.status === -1">
+      <v-expansion-panel v-for="(item, i) in d_txs" :key="i">
         <v-overlay :value="item.status === -1" absolute>
           <span class="caption">{{ $t('Unconfirm transaction') }}</span>
         </v-overlay>

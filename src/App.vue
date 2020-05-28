@@ -75,7 +75,7 @@ export default {
         this.$message.success(this.$t('Device connected'))
       } else {
         this.$message.success(this.$t('Device disconnected'))
-        // window.location.replace('/')
+        window.location.replace('/')
       }
     },
     c_msg(msg) {

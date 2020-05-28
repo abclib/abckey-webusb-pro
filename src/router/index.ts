@@ -13,10 +13,14 @@ files.keys().forEach(key => {
 const routes: Array<RouteConfig> = [
   {
     path: '/',
-    name: '',
+    name: 'home',
     component: import('@/views/Connect.vue')
   },
-  ...modules
+  ...modules,
+  {
+    path: '*',
+    redirect: '/404'
+  }
 ]
 
 const router: any = new VueRouter({

@@ -65,7 +65,7 @@
           </span>
         </v-expansion-panel-header>
       </v-expansion-panel>
-      <v-expansion-panel v-for="(item, i) in d_txs" :key="i" :disabled="item.status === -1">
+      <v-expansion-panel v-for="(item, i) in d_txs" :key="i">
         <v-overlay :value="item.status === -1" absolute>
           <span class="caption">{{ $t('Unconfirm transaction') }}</span>
         </v-overlay>
@@ -138,7 +138,7 @@
                   <td class="caption">{{ new Date(item.blockTime * 1000).toLocaleString() }}</td>
                 </tr>
                 <tr>
-                  <td class="caption">{{ $t('Token Address') }}</td>
+                  <td class="caption">{{ $t('Test Contract Address') }}</td>
                   <td class="caption">{{ item.token }}</td>
                 </tr>
                 <tr>
@@ -378,7 +378,7 @@ export default {
         Block: '区块ID',
         Time: '时间',
         Rate: '汇率',
-        'Token Address': '合约地址',
+        'Test Contract Address': '测试合约地址',
         'Token Name': '代币名',
         Value: '数量',
         Received: '收入',

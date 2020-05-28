@@ -162,7 +162,7 @@
         </v-expansion-panel-header>
       </v-expansion-panel>
       <v-expansion-panel v-for="(item, i) in d_txs" :key="i">
-        <v-expansion-panel-header :disabled="item.blockHeight === -1">
+        <v-expansion-panel-header>
           <v-overlay v-if="item.blockHeight === -1" absolute>
             <span class="subtitle-2">{{ $t('Unconfirm transaction') }}</span>
           </v-overlay>
