@@ -40,7 +40,8 @@ export default {
     d_pinList: ['7', '8', '9', '4', '5', '6', '1', '2', '3']
   }),
   computed: {
-    c_msg: vm => vm.$store.__s('usb.msg')
+    c_msg: (vm) => vm.$store.__s('usb.msg'),
+    c_brand: (vm) => vm.$store.__s('brand')
     // c_show: vm => vm.$store.__s('dialog.pinAck')
   },
   watch: {
@@ -72,7 +73,7 @@ export default {
     },
     async cancel() {
       await this.$usb.cmd('Initialize')
-      window.location.replace('/')
+      window.location.replace(this.$store.__s('brand.buildPath'))
     }
   },
   i18n: {

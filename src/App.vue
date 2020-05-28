@@ -75,12 +75,16 @@ export default {
         this.$message.success(this.$t('Device connected'))
       } else {
         this.$message.success(this.$t('Device disconnected'))
-        window.location.replace('/')
+        window.location.replace(this.$store.__s('brand.buildPath'))
       }
     },
     c_msg(msg) {
       if (msg.data.message === 'Device successfully initialized' || msg.data.message === 'Device recovered') {
-        this.$router.push({ path: `/${this.c_coinInfo.symbol}/wallet/account/` })
+        if (this.c_brand.name === 'ABCKEY') {
+          this.$router.push({ path: `/${this.c_coinInfo.symbol}/wallet/account/` })
+        } else {
+          this.$router.push({ path: `/${this.c_brand.buildPath}/${this.c_coinInfo.symbol}/wallet/account/` })
+        }
         this.$store.__s('usb.initialized', false)
       }
     }

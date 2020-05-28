@@ -43,14 +43,18 @@ export default {
       this.d_show = true
       this.d_msg = err.message
       if (err.message === 'Device disconnected') {
-        window.location.replace('/')
+        if (this.$store.__s('brand.name') === 'ABCKEY') {
+          window.location.replace('/')
+        } else {
+          window.location.replace(this.c_brand.buildPath)
+        }
       }
     }
   },
   methods: {
     close() {
       if (this.d_msg === 'PIN invalid') {
-        window.location.replace('/')
+        window.location.replace(this.$store.__s('brand.buildPath'))
       }
       this.d_show = false
     }

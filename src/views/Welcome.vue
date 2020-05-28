@@ -39,12 +39,16 @@ export default {
   data: () => ({
     d_install: 0
   }),
+  computed: {
+    c_brand: (vm) => vm.$store.__s('brand')
+  },
   methods: {
     async install() {
       this.d_install = 1
       const msg = await this.$usb.cmd('FirmwareErase', {})
       if (msg.type === 'Failure') return (this.d_install = 2)
-      const { data } = await Axios.get('/bin/core.bin', { responseType: 'arraybuffer' })
+      const coreUrl = this.c_brand.name === 'ABCKEY' ? '/bin/core.bin' : '/key/bin/core.bin'
+      const { data } = await Axios.get(coreUrl, { responseType: 'arraybuffer' })
       if (data) await this.$usb.cmd('FirmwareUpload', { payload: Buffer.from(data) })
       this.d_install = 2
     }
