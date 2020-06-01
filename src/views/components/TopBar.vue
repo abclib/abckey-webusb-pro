@@ -1,19 +1,19 @@
 <template>
   <div class="top-bar shadow app-primary-bg">
-    <div class="d-flex flex-row justify-space align-center pt-1 pb-1" style="width:100%;">
+    <div class="d-flex flex-row justify-space align-center pt-1 pb-1" style="width: 100%;">
       <v-btn class="pl-2" text x-large icon @click="changeNavFold">
         <v-icon color="white">mdi-menu-open</v-icon>
       </v-btn>
-      <div class="brand-button pa-1 pl-4 pr-4 mt-2   d-flex flex-row justify-between align-center">
+      <div class="brand-button pa-1 pl-4 pr-4 mt-2 d-flex flex-row justify-between align-center">
         <v-menu offset-y>
           <template v-slot:activator="{ on }">
             <v-btn rounded color="#fff" text v-on="on">
-              <div class="body-2  text--white">{{ c_deviceName }}</div>
+              <div class="body-2 text--white">{{ c_deviceName }}</div>
               <v-icon class="boyd-2 text--white" large>mdi-menu-down</v-icon>
             </v-btn>
           </template>
           <v-list>
-            <v-list-item v-for="(item, index) in d_menuItems" :key="index" @click.native="menuClick(index)" style="cursor:pointer">
+            <v-list-item v-for="(item, index) in d_menuItems" :key="index" @click.native="menuClick(index)" style="cursor: pointer;">
               <v-list-item-title>{{ $t(item.name) }}</v-list-item-title>
             </v-list-item>
           </v-list>
@@ -57,7 +57,7 @@ export default {
         window.location.reload()
       }
       if (this.d_menuItems[index].name === 'Settings') {
-        this.$router.push({ path: '/setting' })
+        this.$router.push({ path: '/setting/index' })
       }
     }
   },
