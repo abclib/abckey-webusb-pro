@@ -223,7 +223,7 @@
 </template>
 
 <script>
-import Axios from 'axios'
+import * as HTTP from '@/http'
 import ETH from '@/mixins/eth'
 import UnitHelper from '@abckey/unit-helper'
 import { utc2Beijing } from '../../../utils/common'
@@ -312,7 +312,7 @@ export default {
     async getEthResult() {
       this.d_address = await this.ethGetAddress()
       this.$store.__s('eth.address', this.d_address)
-      const { data } = await Axios.get(`https://api.abckey.com/trop/address/${this.d_address}?details=txs&contract=${this.c_coinInfo.testContract}&t=${new Date().getTime()}`)
+      const data = await HTTP.Transaction.HistoryByContract({ coinName: 'trop', address: this.d_address, contract: this.c_coinInfo.testContract })
       if (data?.tokens?.length) {
         this.summary = data.tokens[0]
       } else {
@@ -341,7 +341,7 @@ export default {
     },
     async upRate() {
       this.d_loading.upRate = true
-      const { data } = await Axios.get(`https://api.abckey.com/market/usdt/${this.cash.toLowerCase()}&t=${new Date().getTime()}`)
+      const data = await HTTP.Market.Coin2Cash({ coinName: this.c_coinInfo.symbol, cashName: this.cash })
       if (data.error) return
       this.d_rate = data
       this.d_loading.upRate = false

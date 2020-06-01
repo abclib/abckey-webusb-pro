@@ -35,6 +35,18 @@ export default {
     'When transferring money to an ordinary address in Ethereum, please click General Transfer.': '向以太坊普通地址转账时，请点击普通转账',
     'When transferring money to the Ethereum smart contract address, please set the Gas Limit manually.': '向以太坊智能合约地址转账时，请手动设置Gas Limit。',
     'When transferring money to the Ethereum smart contract address, in order to ensure success, GasLimit should not be lower than 50000. If the transaction fails, please continue to increase GasLimit.': '向以太坊智能合约地址转账时，为了确保成功，GasLimit不应低于50000。如果交易失败，请继续增大GasLimit。',
-    'Gas Price that are too high and too low cannot be broadcast. When the input commission exceeds the recommended range, it will automatically adjust to the closest recommended value.': '过高和过低的GasPrice都无法广播，当输入的手续费超过推荐范围时，会自动调整为最接近的推荐值。'
+    'Gas Price that are too high and too low cannot be broadcast. When the input commission exceeds the recommended range, it will automatically adjust to the closest recommended value.': '过高和过低的GasPrice都无法广播，当输入的手续费超过推荐范围时，会自动调整为最接近的推荐值。',
+    'Request Error': '请求错误',
+    'Unauthorized, please login': '未授权，请登录',
+    'Access denied': '拒绝访问',
+    'Request address error': '请求地址出错',
+    'Request timeout': '请求超时',
+    'Internal server errord': '服务器内部错误',
+    'Service not implemented': '服务未实现',
+    'Gateway error': '网关错误',
+    'Service is not available': '服务不可用',
+    'Gateway timeout': '网关超时',
+    'HTTP version is not supported': 'HTTP版本不受支持',
+    timeout: '请求超时，请稍等片刻~'
   }
 }

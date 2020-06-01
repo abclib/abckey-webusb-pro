@@ -8,5 +8,6 @@ export default {
   cashUnit: 'CNY',
   pageLoading: false,
   navbarFold: false,
-  balance: ''
+  balance: '',
+  httpMessage: ''
 }

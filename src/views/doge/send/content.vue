@@ -93,7 +93,7 @@
 </template>
 
 <script>
-import Axios from 'axios'
+import * as HTTP from '@/http'
 import clipboard from 'clipboard-polyfill'
 import UnitHelper from '@abckey/unit-helper'
 import AddressHelper from '@abckey/address-helper'
@@ -105,7 +105,6 @@ export default {
       d_errorReason: '',
       d_transactionHash: '',
       d_snackbar: false,
-      d_feeUrl: 'https://bitcoinfees.earn.com/api/v1/fees/recommended',
       d_utxoList: [],
       d_txidList: [],
       d_maxPaidIndex: 0,
@@ -220,17 +219,11 @@ export default {
      *  @method - get fee satoshi/byte from internet
      */
     async getFeePerSatoshis() {
-      const result = await Axios.get(this.d_feeUrl)
-      if (result.status !== 200) {
-        return
+      const result = await HTTP.Transaction.GetRecommendFee()
+      if (result.fastestFee === result.halfHourFee) {
+        result.halfHourFee--
       }
-      if (!result?.data?.fastestFee) {
-        return
-      }
-      if (result.data.fastestFee === result.data.halfHourFee) {
-        result.data.halfHourFee--
-      }
-      this.d_feeList = [result.data.fastestFee, result.data.halfHourFee, result.data.hourFee]
+      this.d_feeList = [result.fastestFee, result.halfHourFee, result.hourFee]
       this.d_fee = this.d_feeList[0]
       this.d_feeHelpList[this.d_feeList[0]] = {
         text: this.$t('high')
@@ -243,14 +236,10 @@ export default {
       }
     },
     async getUtxoList() {
-      const result = await Axios.get(`https://api.abckey.com/${this.c_coinInfo.symbol}/utxo/${this.c_xpub}?confirme=true`)
-      if (result.status === 200) {
-        this.d_utxoList = result.data
-        if (this.d_utxoList.length === 0) {
-          this.$message.error({ message: this.$t('The available balance is 0 and no transactions can be sent!'), duration: -1 })
-        }
-      } else {
-        this.$message.error(this.$t('The network breakdown!'))
+      const result = await HTTP.Transaction.GetUtxoByXpub({ coinName: this.c_coinInfo.symbol, xpub: this.c_xpub })
+      this.d_utxoList = result
+      if (this.d_utxoList.length === 0) {
+        this.$message.error({ message: this.$t('The available balance is 0 and no transactions can be sent!'), duration: -1 })
       }
     },
     /**
@@ -342,7 +331,8 @@ export default {
       try {
         await this.signTx()
       } catch (e) {
-        this.$message.error({ message: this.$t('The transfer is aUnitHelperormal, please check the data before sending.'), duration: -1 })
+        console.log(e)
+        this.$message.error({ message: this.$t('The transfer is unnormal, please check the data before sending.'), duration: -1 })
       }
       this.$store.__s('pageLoading', false)
     },
@@ -369,14 +359,14 @@ export default {
         item.prev_hash = this.d_utxoList[i].txid
         item.prev_index = this.d_utxoList[i].vout
         item.script_type = this.d_utxoList[i].path.includes('49') ? 'SPENDP2SHWITNESS' : 'SPENDADDRESS'
-        const result = await Axios.get(`https://api.abckey.com/${this.c_coinInfo.symbol}/tx/${this.d_utxoList[i].txid}`)
-        item.sequence = result.data.vin[0].sequence
+        const result = await HTTP.Transaction.GetTxDetial({ coinName: this.c_coinInfo.symbol, txid: this.d_utxoList[i].txid })
+        item.sequence = result.vin[0].sequence
         prePaidCount = prePaidCount.plus(this.d_utxoList[i].value)
         inputs.push(item)
       }
       change = prePaidCount.minus(this.c_totalAmounts.plus(this.c_totalFees))
-      const res = await Axios.get(`https://api.abckey.com/${this.c_coinInfo.symbol}/xpub/${this.c_usb.xpub}?details=txs&tokens=used&t=${new Date().getTime()}`)
-      const usedTokens = res.data.usedTokens ? res.data.usedTokens : '0'
+      const res = await HTTP.Transaction.HistoryByXpub({ coinName: this.c_coinInfo.symbol, xpub: this.c_usb.xpub })
+      const usedTokens = res.usedTokens ? res.usedTokens : '0'
       const changeObject = {
         address_n: this.getAddressN(`m/${this.c_coinProtocol}'/${this.c_coinInfo.slip44}'/0'/1/${usedTokens}`),
         amount: change.toNumber(),
@@ -394,7 +384,7 @@ export default {
       if (this.c_coinProtocol === 44) {
         this.d_txidList = []
         for (let i = 0; i <= this.d_maxPaidIndex; i++) {
-          const { data } = await Axios.get(`https://api.abckey.com/${this.c_coinInfo.symbol}/tx-specific/${this.d_utxoList[i].txid}`)
+          const data = await HTTP.Transaction.TxSpecific({ coinName: this.c_coinInfo.symbol, txid: this.d_utxoList[i].txid })
           this.d_txidList.push(this.transferTxid(data))
         }
         params.utxo = this.d_txidList
@@ -415,12 +405,18 @@ export default {
         this.getMaxPaidIndex()
       },
       deep: true
+    },
+    d_fee() {
+      if (this.d_clickAll) {
+        const mount = UnitHelper(this.c_utxoTotal).minus(this.c_totalFees).toString()
+        this.d_txOut.splice(0, 1, { ...this.d_txOut[0], amount: UnitHelper(mount, 'sat_btc').toNumber() })
+      }
     }
   },
   i18n: {
     messages: {
       zhCN: {
-        'The transfer is aUnitHelperormal, please check the data before sending.': '转账异常，请检查数据后再发送',
+        'The transfer is unnormal, please check the data before sending.': '转账异常，请检查数据后再发送',
         'All Balances': '发送所有余额',
         'Transaction signature failed': '签名交易失败',
         'Transaction signature success': '签名交易成功',

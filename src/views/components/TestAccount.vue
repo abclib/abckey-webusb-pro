@@ -332,7 +332,7 @@
 </template>
 
 <script>
-import Axios from 'axios'
+import * as HTTP from '@/http'
 import usb from '@/mixins/usb'
 import UnitHelper from '@abckey/unit-helper'
 
@@ -431,7 +431,7 @@ export default {
         show_display: false
       })
       this.d_address = result.data.address
-      const r = await Axios.get(`https://api.abckey.com/${this.c_coinInfo.symbol}/address/${this.d_address}?page=1&pageSize=1000&details=txs`)
+      const r = await HTTP.Transaction.HistoryByAddress({ coinName: this.c_coinInfo.symbol, address: this.d_address })
       return r
     },
     upAll() {
@@ -444,10 +444,10 @@ export default {
       if (this.coin === 'eth') {
         result = await this.getEthResult()
       } else {
-        result = await Axios.get(`https://api.abckey.com/${this.c_coinInfo.symbol}/xpub/${this.xpub}?details=txs&tokens=used&t=${new Date().getTime()}`)
+        result = await HTTP.Transaction.HistoryByXpub({ coinName: this.c_coinInfo.symbol, xpub: this.xpub })
       }
       if (result.error) return
-      const data = result.data
+      const data = result
       this.d_balance = this.sat2btc(data.balance)
       this.$store.__s('balance', `${this.d_balance}`)
       this.d_totalReceived = this.sat2btc(data.totalReceived)
@@ -461,7 +461,7 @@ export default {
     },
     async upRate() {
       this.d_loading.upRate = true
-      const { data } = await Axios.get(`https://api.abckey.com/market/${this.c_switchCashName}/${this.cash.toLowerCase()}&t=${new Date().getTime()}`)
+      const data = await HTTP.Market.Coin2Cash({ coinName: this.c_coinInfo.symbol, cashName: this.cash })
       if (data.error) return
       this.d_rate = data
       this.d_loading.upRate = false

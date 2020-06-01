@@ -24,6 +24,7 @@ export default {
   },
   methods: {
     async initPublickey() {
+      this.$usb.cmd('ClearSession', null, true)
       switch (this.coinInfo.symbol) {
         case 'usdt':
         case 'eth':

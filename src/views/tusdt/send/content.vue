@@ -91,7 +91,7 @@
 </template>
 
 <script>
-import Axios from 'axios'
+import * as HTTP from '@/http'
 import clipboard from 'clipboard-polyfill'
 import UnitHelper from '@abckey/unit-helper'
 import AddressHelper from '@abckey/address-helper'
@@ -112,8 +112,6 @@ export default {
       d_fastest: '20',
       d_transactionHash: '0x21e40e3aa5727f918159018b329f141b75100719079cfaf2e8a095f9a112a8c0',
       d_snackbar: false,
-      // d_gasUrl: 'https://ethgasstation.info/api/ethgasAPI.json?api-key=1f1087b62ec4dc2e2f80a991426c26f9380b2a8d25821836da5bb65ed8ce',
-      d_gasUrl: 'https://api.abckey.com/fees/eth',
       d_gasLimit: '88888',
       d_utxoList: [
         {
@@ -205,23 +203,23 @@ export default {
      *  @method - get fee satoshi/byte from internet
      */
     async getFeeRate() {
-      const result = await Axios.get(this.d_gasUrl)
-      if (result.status !== 200) {
+      const result = await HTTP.Transaction.GetRecommendFee('eth')
+      if (!result.safeLow) {
         return
       }
-      this.d_safeLow = Math.floor(result.data.safeLow / 10)
-      this.d_average = Math.floor(result.data.average / 10)
-      this.d_fast = Math.floor(result.data.fast / 10)
-      this.d_fastest = Math.floor(result.data.fastest / 10)
+      this.d_safeLow = Math.floor(result.safeLow / 10)
+      this.d_average = Math.floor(result.average / 10)
+      this.d_fast = Math.floor(result.fast / 10)
+      this.d_fastest = Math.floor(result.fastest / 10)
       this.d_zoom = parseInt(this.d_average)
     },
     async getUtxoList() {
       const address = await this.ethGetAddress()
-      const result = await Axios.get(`https://api.abckey.com/trop/address/${address}?details=basic$t=${new Date().getTime()}`)
-      if (result.status === 200 && !result.error) {
-        this.d_utxoList.splice(0, 1, { amount: result?.data?.balance ? result?.data?.balance : 0, address: result?.data?.address, nonce: result.data.nonce })
+      const result = await HTTP.Transaction.BalanceByAddress({ coinName: 'trop', address: address })
+      if (result.balance) {
+        this.d_utxoList.splice(0, 1, { amount: result?.balance ? result?.balance : 0, address: result?.address, nonce: result.nonce })
       } else {
-        this.$message.error(this.$t('The network breakdown!'))
+        this.$message.info(result.error)
       }
     },
     async updateNonce() {

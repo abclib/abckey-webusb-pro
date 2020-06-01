@@ -60,7 +60,8 @@ export default {
     c_msg: (vm) => vm.$store.__s('usb.msg'),
     c_brand: (vm) => vm.$store.__s('brand'),
     c_coinInfo: (vm) => vm.$store.__s('coinInfo'),
-    c_needsBackup: (vm) => vm.$store.__s('usb.needsBackup')
+    c_needsBackup: (vm) => vm.$store.__s('usb.needsBackup'),
+    c_httpMessage: (vm) => vm.$store.__s('httpMessage')
   },
   async created() {
     const coinType = this.$store.__s('coinType').toLowerCase()
@@ -87,6 +88,11 @@ export default {
         }
         this.$store.__s('usb.initialized', false)
       }
+    },
+    c_httpMessage(val) {
+      if (!val) return
+      this.$message.error(this.$t(val))
+      this.$store.__s('httpMessage', '')
     }
   },
   i18n: {

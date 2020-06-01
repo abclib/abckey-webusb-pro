@@ -78,11 +78,11 @@
 
 <script>
 import UnitHelper from '@abckey/unit-helper'
-import Axios from 'axios'
 import QRCode from 'qrcodejs2'
 import { mapState } from 'vuex'
 import { getMousePos, copyText } from '@/utils/common'
 import UsbMixin from '@/mixins/usb'
+import * as HTTP from '@/http'
 export default {
   name: 'Receive',
   mixins: [UsbMixin],
@@ -172,14 +172,14 @@ export default {
       this.$store.__s('pageLoading', true)
       let result = null
       try {
-        result = await Axios({ method: 'get', url: `https://api.abckey.com/${this.coinInfo.symbol}/xpub/${this.usb.xpub}?details=txs&tokens=used&t=${new Date().getTime()}`, timeout: 1000 * 10 })
+        result = await HTTP.Transaction.HistoryByXpub({ coinName: this.c_coinInfo.symbol, xpub: this.usb.xpub })
       } catch (error) {
         this.$store.__s('pageLoading', false)
         this.$message.error(this.$t('Network Error!'))
       }
 
-      this.d_receiveList = result.data.tokens ? result.data.tokens : []
-      this.d_currentInex = result.data.usedTokens ? result.data.usedTokens : '0'
+      this.d_receiveList = result.tokens ? result.tokens : []
+      this.d_currentInex = result.usedTokens ? result.usedTokens : '0'
       this.d_currentAddress = this.d_currentInex
       this.getAddr()
       this.$store.__s('pageLoading', false)
