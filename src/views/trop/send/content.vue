@@ -333,7 +333,7 @@ export default {
       // Organize output data
       this.d_gasLimit = this.d_sendType === 'normal' ? '21000' : this.d_gasLimit
       const txParams = {
-        bip32_path: `m/44'/60'/0'/0/${this.eth.account}`,
+        bip32_path: `m/44'/1'/0'/0/${this.eth.account}`,
         nonce: this.d_utxoList[0].nonce,
         gas_price: UnitHelper(1, 'gwei_wei').times(this.d_zoom).toString(10),
         gas_limit: this.d_gasLimit,
