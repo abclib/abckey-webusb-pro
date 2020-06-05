@@ -215,7 +215,7 @@ export default {
     },
     async getUtxoList() {
       const address = await this.ethGetAddress()
-      const result = await HTTP.Transaction.BalanceByAddress({ coinName: 'trop', address: address })
+      const result = await HTTP.Transaction.BalanceByAddress({ coinName: 'eth', address: address })
       if (result.balance) {
         this.d_utxoList.splice(0, 1, { amount: result?.balance ? result?.balance : 0, address: result?.address, nonce: result.nonce })
       } else {
@@ -327,7 +327,7 @@ export default {
     async signTx() {
       // Organize output data
       const txParams = {
-        bip32_path: "m/44'/60'/0'/0/0",
+        bip32_path: `m/44'/60'/0'/0/${this.eth.account}`,
         erc20: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         nonce: this.d_utxoList[0].nonce,
         gas_price: UnitHelper(1, 'gwei_wei').times(this.d_zoom).toString(10),
