@@ -26,6 +26,8 @@ export default {
     'Available Balance': '可用余额',
     'The available balance is 0 and no transactions can be sent!': '可用余额为0，无法进行任何交易',
     'Copy Success': '复制成功',
+    'Transaction Detail': '交易详情',
+    'Copy': '复制',
     'Transaction signature failed!': '交易签名失败',
     'Update nonce successfully!': '随机数更新成功！',
     'The network breakdown!': '网络发生异常',
